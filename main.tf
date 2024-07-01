@@ -28,7 +28,6 @@ terraform {
   }
 }
 
-
 resource "aws_vpc" "test-infra" {
   cidr_block       = "10.0.0.0/16"
   instance_tenancy = "default"
