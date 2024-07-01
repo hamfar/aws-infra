@@ -1,32 +1,3 @@
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
-
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "4.52.0"
-    }
-    random = {
-      source  = "hashicorp/random"
-      version = "3.4.3"
-    }
-  }
-  required_version = ">= 1.1.0"
-}
-
-provider "aws" {
-  region = "eu-west-1"
-}
-
-terraform {
-  backend "s3" {
-    bucket         = "tfm-infra-state-hamfar"
-    key            = "terraform.tfstate"
-    region         = "eu-west-1"
-    encrypt        = true
-  }
-}
 
 resource "aws_vpc" "test-infra" {
   cidr_block       = "10.0.0.0/16"
@@ -37,14 +8,22 @@ resource "aws_vpc" "test-infra" {
   }
 }
 
-variable "public_subnets_cidr" {
-  type        = list(any)
-  default     = ["10.0.1.0/24", "10.0.128.0/24"]
-  description = "CIDR block for Public Subnet"
+resource "aws_subnet" "public_subnets" {
+ count      = length(var.public_subnets_cidr)
+ vpc_id     = aws_vpc.test-infra.id
+ cidr_block = element(var.public_subnets_cidr, count.index)
+ availability_zone = element(var.azs, count.index)
+ tags = {
+   Name = "Public Subnet ${count.index + 1}"
+ }
 }
 
-variable "private_subnets_cidr" {
-  type        = list(any)
-  default     = ["10.0.16.0/24", "10.0.144.0/24"]
-  description = "CIDR block for Private Subnet"
+resource "aws_subnet" "private_subnets" {
+ count      = length(var.private_subnets_cidr)
+ vpc_id     = aws_vpc.test-infra.id
+ cidr_block = element(var.private_subnets_cidr, count.index)
+ availability_zone = element(var.azs, count.index)
+ tags = {
+   Name = "Private Subnet ${count.index + 1}"
+ }
 }
