@@ -14,4 +14,10 @@ terraform {
 
 provider "aws" {
   region = "eu-west-1"
+  default_tags {
+  tags = {
+    Application_Name     = "SaaSBackups", 
+    cost_center          = "hamfar"
+  }
+}
 }

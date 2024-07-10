@@ -10,9 +10,20 @@ variable "private_subnets_cidr" {
   description = "CIDR block for Private Subnet"
 }
 
-
 variable "azs" {
  type        = list(string)
  description = "Availability Zones"
  default     = ["eu-west-1a", "eu-west-1b"]
+}
+
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+  default     = "eu-west-1"
+}
+
+variable "deployed_env" {
+  description = "Environment to be deployed - dev/stage/prod"
+  type = string 
+  default = "dev"
 }

@@ -1,14 +1,14 @@
 [
   {
-    "name": "dummyapi",
+    "name": "saasbackup",
     "image": "${aws_ecr_repository}:${tag}",
     "essential": true,
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
-        "awslogs-region": "eu-west-2",
-        "awslogs-stream-prefix": "dummyapi-staging-service",
-        "awslogs-group": "awslogs-dummyapi-staging"
+        "awslogs-region": "${aws_region}",
+        "awslogs-stream-prefix": "saasbackups-$environment-service",
+        "awslogs-group": "awslogs-saasbackups-${environment}"
       }
     },
     "portMappings": [
@@ -22,7 +22,7 @@
     "environment": [
       {
         "name": "NODE_ENV",
-        "value": "staging"
+        "value": "${environment}"
       },
       {
         "name": "PORT",
@@ -37,7 +37,7 @@
       }
     ],
     "mountPoints": [],
-    "memory": 2048,
+    "memory": 1024,
     "volumesFrom": []
   }
 ]

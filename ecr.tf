@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "repo" {
-  name = "saasbackups/staging/runner"
+  name = "saasbackups/${var.deployed_env}/runner"
 }
 
 resource "aws_ecr_lifecycle_policy" "repo-policy" {
