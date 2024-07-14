@@ -1,2 +1,3 @@
-# aws-test-infra
-spins up test infrastructure environment in AWS
+# Terraform AWS infrastructure 
+
+Manages resources in AWS environment
