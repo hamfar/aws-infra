@@ -1,6 +1,6 @@
 resource "aws_security_group" "saasbackup" {
   name        = "saasbackup-security-group"
-  vpc_id      = aws_vpc.test-infra.id
+  vpc_id      = var.vpc_id
 
   egress {
     protocol    = "-1"

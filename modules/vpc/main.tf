@@ -1,16 +1,15 @@
-
-resource "aws_vpc" "test-infra" {
+resource "aws_vpc" "vpc" {
   cidr_block       = "10.0.0.0/16"
   instance_tenancy = "default"
 
   tags = {
-    Name = "test-infra"
+    Name = "aws-infra-vpc"
   }
 }
 
 resource "aws_subnet" "public_subnets" {
  count      = length(var.public_subnets_cidr)
- vpc_id     = aws_vpc.test-infra.id
+ vpc_id     = aws_vpc.vpc.id
  cidr_block = element(var.public_subnets_cidr, count.index)
  availability_zone = element(var.azs, count.index)
  tags = {
@@ -20,7 +19,7 @@ resource "aws_subnet" "public_subnets" {
 
 resource "aws_subnet" "private_subnets" {
  count      = length(var.private_subnets_cidr)
- vpc_id     = aws_vpc.test-infra.id
+ vpc_id     = aws_vpc.vpc.id
  cidr_block = element(var.private_subnets_cidr, count.index)
  availability_zone = element(var.azs, count.index)
  tags = {
