@@ -1,43 +1,9 @@
-resource "aws_ecs_cluster" "staging" {
+resource "aws_ecs_cluster" "ecs_cluster" {
   name = "saasbackup-cluster"
 }
 
-data "template_file" "saasbackup" {
-  template = file("${path.module}/templates/saasapp.json.tpl")
-  vars = {
-    aws_ecr_repository = aws_ecr_repository.repo.repository_url
-    tag                = "latest"
-    app_port           = 80
-    aws_region         = var.aws_region
-    environment        = var.environment
-  }
-}
-
-resource "aws_ecs_task_definition" "service" {
-  family                   = "saasbackup-${var.environment}"
-  network_mode             = "awsvpc"
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  cpu                      = 256
-  memory                   = 1024
-  requires_compatibilities = ["FARGATE"]
-  container_definitions    = data.template_file.saasbackup.rendered
-  tags = {
-    Environment = var.environment
-    Application = "saasbackup"
-  }
-}
-
-resource "aws_ecs_service" "SaaSBackups" {
-  name            = "SaaSBackups-${var.environment}"
-  cluster         = aws_ecs_cluster.staging.id
-  task_definition = aws_ecs_task_definition.service.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
-  network_configuration {
-    security_groups = [aws_security_group.saasbackup.id]
-    subnets         = var.subnet
-  }
-  depends_on = [aws_iam_role_policy_attachment.ecs_task_execution_role, aws_ecs_cluster.staging]
+resource "aws_cloudwatch_log_group" "saasbackups-log-group" {
+  name = "awslogs-saasbackups-${var.environment}"
 
   tags = {
     Environment = var.environment
@@ -45,11 +11,43 @@ resource "aws_ecs_service" "SaaSBackups" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "SaaSBackups" {
-  name = "awslogs-saasbackups-${var.environment}"
-
-  tags = {
-    Environment = var.environment
-    Application = "SaaSBackup"
-  }
+resource "aws_ecs_task_definition" "saasbackup-definition" {
+  family                   = "saasbackups"
+  execution_role_arn       = aws_iam_role.saasbackups_ecs_task_execution_role.arn
+  network_mode             = "awsvpc"
+  cpu                      = "256"
+  memory                   = "1024"
+  requires_compatibilities = ["FARGATE"]
+  container_definitions = <<TASK_DEFINITION
+  [
+    {
+      "name": "saasbackup",
+      "image": "busybox",
+      "command": ["ls"],
+      "essential": true,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-region": "${var.aws_region}",
+          "awslogs-stream-prefix": "${var.environment}",
+          "awslogs-group": "awslogs-saasbackups-${var.environment}"
+        }
+      },
+      "portMappings": [],
+      "cpu": 1,
+      "environment": [],
+      "ulimits": [
+        {
+          "name": "nofile",
+          "softLimit": 65536,
+          "hardLimit": 65536
+        }
+      ],
+      "memory": 1024,
+      "ephemeralStorage": {
+        "sizeInGiB": 200
+      }
+    }
+  ]
+  TASK_DEFINITION 
 }
