@@ -8,6 +8,8 @@ module "vpc" {
 
 module "saasbackups" {
   source = "../../modules/saasbackup"
+  s3_bucket_auto = "ecs-saasbackups-dev"
+  s3_bucket_manual = "saasbackups-dev"
   environment = var.environment
   region = var.aws_region
   vpc_id = module.vpc.vpc_id
