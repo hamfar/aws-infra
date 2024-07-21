@@ -1,9 +1,9 @@
-resource "aws_ecr_repository" "repo" {
+resource "aws_ecr_repository" "saasbackups_repo" {
   name = "saasbackups/${var.environment}/runner"
 }
 
-resource "aws_ecr_lifecycle_policy" "repo-policy" {
-  repository = aws_ecr_repository.repo.name
+resource "aws_ecr_lifecycle_policy" "saasbackups_repo_policy" {
+  repository = aws_ecr_repository.saasbackups_repo.name
 
   policy = <<EOF
 {

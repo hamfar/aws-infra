@@ -1,5 +1,5 @@
-resource "aws_security_group" "saasbackup" {
-  name        = "saasbackup-security-group"
+resource "aws_security_group" "saasbackups_sg" {
+  name        = "saasbackups-sg-${var.environment}"
   vpc_id      = var.vpc_id
 
   egress {
