@@ -1,8 +1,13 @@
-resource "aws_ecs_cluster" "ecs_cluster" {
-  name = "saasbackup-cluster"
+resource "aws_ecs_cluster" "saasbackups_ecs_cluster" {
+  name = "saasbackup-cluster-${var.environment}"
+    
+  tags = {
+    Environment = var.environment
+    Application = "SaaSBackups"
+  }
 }
 
-resource "aws_cloudwatch_log_group" "saasbackups-log-group" {
+resource "aws_cloudwatch_log_group" "saasbackups_log_group" {
   name = "awslogs-saasbackups-${var.environment}"
 
   tags = {
@@ -11,11 +16,12 @@ resource "aws_cloudwatch_log_group" "saasbackups-log-group" {
   }
 }
 
-resource "aws_ecs_task_definition" "saasbackup-definition" {
+resource "aws_ecs_task_definition" "saasbackups_ecs_task_definition" {
   family                   = "saasbackups"
   execution_role_arn       = aws_iam_role.saasbackups_ecs_task_execution_role.arn
+  task_role_arn            = aws_iam_role.saasbackups_ecs_task_execution_role.arn
   network_mode             = "awsvpc"
-  cpu                      = "256"
+  cpu                      = "256"  
   memory                   = "1024"
   requires_compatibilities = ["FARGATE"]
   container_definitions = <<TASK_DEFINITION

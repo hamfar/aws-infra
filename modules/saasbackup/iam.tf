@@ -1,20 +1,105 @@
-resource "aws_iam_role" "saasbackups_ecs_task_execution_role" {
-  name = "ecs-task-execution-role"
 
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Action = "sts:AssumeRole",
-      Effect = "Allow",
-      Principal = {
-        Service = "ecs-tasks.amazonaws.com"
-      }
-    }]
-  })
+data "aws_iam_policy_document" "saasbackups_ecs_data_policy" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
 }
 
-resource "aws_iam_policy_attachment" "ecs_task_execution_policy" {
-  name = "saasbackups_policy_attachment"
+resource "aws_iam_role" "saasbackups_ecs_task_execution_role" {
+  name = "saasbackups-ecs-task-execution-role"
+  assume_role_policy = data.aws_iam_policy_document.saasbackups_ecs_data_policy.json
+}
+
+resource "aws_iam_policy_attachment" "saasbackups_ecs_task_execution_policy" {
+  name = "saasbackups-policy-attachment"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
   roles      = [aws_iam_role.saasbackups_ecs_task_execution_role.name]
 }
+
+data "aws_iam_policy_document" "saasbackups_events_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["events.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+resource "aws_iam_role" "saasbackups_ecs_events" {
+  name               = "saasbackups-ecs-events"
+  assume_role_policy = data.aws_iam_policy_document.saasbackups_events_assume_role.json
+}
+
+
+data "aws_iam_policy_document" "saasbackups_events_run_task_policy" {
+  statement {
+    effect    = "Allow"
+    actions   = ["iam:PassRole"]
+    resources = ["*"]
+    condition {
+      test  = "StringLike"
+      variable = "iam:PassedToService"
+      values = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+  
+  statement {
+    effect    = "Allow"
+    actions   = ["ecs:RunTask"]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "saasbackups_events_run_task" {
+  name   = "saasbackups-ecs-events-run-task"
+  role   = aws_iam_role.saasbackups_ecs_events.id
+  policy = data.aws_iam_policy_document.saasbackups_events_run_task_policy.json
+}
+
+
+data "aws_iam_policy_document" "saasbackups_secrets_data_policy" {
+  statement {
+    effect    = "Allow"
+    actions   = ["secretsmanager:GetResourcePolicy",
+                  "secretsmanager:GetSecretValue",
+                  "secretsmanager:DescribeSecret",
+                  "secretsmanager:ListSecretVersionIds",
+                  "secretsmanager:ListSecrets"]
+    resources = [aws_secretsmanager_secret.saasbackups_secrets.id]
+  }
+}
+
+
+resource "aws_iam_role_policy" "saasbackups_secrets_policy" {
+  name   = "saasbackups-secrets-policy"
+  role   = aws_iam_role.saasbackups_ecs_task_execution_role.id
+  policy = data.aws_iam_policy_document.saasbackups_secrets_data_policy.json
+}
+
+
+data "aws_iam_policy_document" "saasbackups_s3_data_policy" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.saasbackups_s3_bucket_auto.arn}/*", aws_s3_bucket.saasbackups_s3_bucket_auto.arn]
+  }
+}
+
+resource "aws_iam_role_policy" "saasbackups_s3_policy" {
+  name   = "saasbackups-s3-policy"
+  role   = aws_iam_role.saasbackups_ecs_task_execution_role.id
+  policy = data.aws_iam_policy_document.saasbackups_s3_data_policy.json
+}
+
+
