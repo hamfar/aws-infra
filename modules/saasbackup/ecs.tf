@@ -24,13 +24,35 @@ resource "aws_ecs_task_definition" "saasbackups_ecs_task_definition" {
   cpu                      = "256"  
   memory                   = "1024"
   requires_compatibilities = ["FARGATE"]
+  volume  {
+    name = "githubDir"
+  }
+
+  volume {
+    name = "rootHome"
+  }
+
+  volume {
+    name = "archiveDir"
+  }
   container_definitions = <<TASK_DEFINITION
   [
     {
       "name": "saasbackup",
-      "image": "busybox",
+      "image": "${aws_ecr_repository.saasbackups_repo.repository_url}:latest",
       "command": ["ls"],
       "essential": true,
+      "mountPoints" : [
+        { "sourceVolume": "githubDir",
+          "containerPath": "/backup/github"
+        },
+        { "sourceVolume": "rootHome",
+          "containerPath": "/root/.ssh"
+        },
+        { "sourceVolume": "archiveDir",
+          "containerPath": "/backup/archive"
+        }
+      ],
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
