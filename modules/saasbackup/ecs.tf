@@ -7,15 +7,6 @@ resource "aws_ecs_cluster" "saasbackups_ecs_cluster" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "saasbackups_log_group" {
-  name = "awslogs-saasbackups-${var.environment}"
-
-  tags = {
-    Environment = var.environment
-    Application = "SaaSBackups"
-  }
-}
-
 resource "aws_ecs_task_definition" "saasbackups_ecs_task_definition" {
   family                   = "saasbackups"
   execution_role_arn       = aws_iam_role.saasbackups_ecs_task_execution_role.arn
@@ -39,8 +30,8 @@ resource "aws_ecs_task_definition" "saasbackups_ecs_task_definition" {
   [
     {
       "name": "saasbackup",
-      "image": "${aws_ecr_repository.saasbackups_repo.repository_url}:latest",
-      "command": ["ls"],
+      "image": "busybox",
+      "command": ["ls -h /backups"],
       "essential": true,
       "mountPoints" : [
         { "sourceVolume": "githubDir",
