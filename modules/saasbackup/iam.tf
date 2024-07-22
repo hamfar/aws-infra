@@ -46,7 +46,7 @@ data "aws_iam_policy_document" "saasbackups_events_run_task_policy" {
   statement {
     effect    = "Allow"
     actions   = ["iam:PassRole"]
-    resources = ["*"]
+    resources = [aws_iam_role.saasbackups_ecs_task_execution_role.arn]
     condition {
       test  = "StringLike"
       variable = "iam:PassedToService"
@@ -57,7 +57,12 @@ data "aws_iam_policy_document" "saasbackups_events_run_task_policy" {
   statement {
     effect    = "Allow"
     actions   = ["ecs:RunTask"]
-    resources = ["*"]
+    resources = ["${aws_ecs_task_definition.saasbackups_ecs_task_definition.arn_without_revision}:*"]
+    condition {
+      test = "ArnEquals"
+      variable = "ecs:cluster"
+      values = [aws_ecs_cluster.saasbackups_ecs_cluster.arn]
+    }
   }
 }
 
