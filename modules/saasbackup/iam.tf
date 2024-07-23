@@ -13,7 +13,7 @@ data "aws_iam_policy_document" "saasbackups_ecs_data_policy" {
 }
 
 resource "aws_iam_role" "saasbackups_ecs_task_execution_role" {
-  name = "saasbackups-ecs-task-execution-role"
+  name = "saasbackups-ecs-task-execution${var.suffix}"
   assume_role_policy = data.aws_iam_policy_document.saasbackups_ecs_data_policy.json
 }
 
@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "saasbackups_events_assume_role" {
 }
 
 resource "aws_iam_role" "saasbackups_ecs_events" {
-  name               = "saasbackups-ecs-events"
+  name               = "saasbackups-ecs-events${var.suffix}"
   assume_role_policy = data.aws_iam_policy_document.saasbackups_events_assume_role.json
 }
 
@@ -67,7 +67,7 @@ data "aws_iam_policy_document" "saasbackups_events_run_task_policy" {
 }
 
 resource "aws_iam_role_policy" "saasbackups_events_run_task" {
-  name   = "saasbackups-ecs-events-run-task"
+  name   = "saasbackups-events-run-task${var.suffix}"
   role   = aws_iam_role.saasbackups_ecs_events.id
   policy = data.aws_iam_policy_document.saasbackups_events_run_task_policy.json
 }
@@ -87,7 +87,7 @@ data "aws_iam_policy_document" "saasbackups_secrets_data_policy" {
 
 
 resource "aws_iam_role_policy" "saasbackups_secrets_policy" {
-  name   = "saasbackups-secrets-policy"
+  name   = "saasbackups-secrets${var.suffix}"
   role   = aws_iam_role.saasbackups_ecs_task_execution_role.id
   policy = data.aws_iam_policy_document.saasbackups_secrets_data_policy.json
 }

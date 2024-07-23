@@ -2,8 +2,10 @@ variable "environment" {
   type = string
 }
 
-variable "region" {
+variable "suffix" {
+  description = "suffix to add to aws resource names"
   type = string
+  default = "-01"
 }
 
 variable "aws_region" {

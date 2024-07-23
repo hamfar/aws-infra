@@ -1,11 +1,11 @@
 resource "aws_cloudwatch_event_rule" "saasbackups_cron" {
-  name                = "saasbackups-cron-${var.environment}"
-  schedule_expression = "cron(0 * * * ? *)"  
+  name                = "saasbackups-cron${var.suffix}"
+  schedule_expression = "cron(*/3 * * * ? *)"  
 }
 
 
 resource "aws_cloudwatch_event_target" "saasbackups_ecs_scheduled_task" {
-  target_id = "saasbackups-daily-schedule-${var.environment}"
+  target_id = "saasbackups-daily-schedule${var.suffix}"
   arn       = aws_ecs_cluster.saasbackups_ecs_cluster.arn
   rule      = aws_cloudwatch_event_rule.saasbackups_cron.name
   role_arn  = aws_iam_role.saasbackups_ecs_events.arn

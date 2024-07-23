@@ -1,5 +1,9 @@
 resource "aws_ecr_repository" "saasbackups_repo" {
-  name = "saasbackups/${var.environment}/runner"
+  name = "saasbackups/${var.environment}${var.suffix}/runner"
+  tags = {
+    Environment = var.environment
+    Application = "SaaSBackups"
+  }
 }
 
 resource "aws_ecr_lifecycle_policy" "saasbackups_repo_policy" {

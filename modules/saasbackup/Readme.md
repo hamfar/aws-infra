@@ -10,6 +10,7 @@ module "saasbackups" {
   s3_bucket_auto = "ecs-saasbackups-dev"
   s3_bucket_manual = "saasbackups-dev"
   environment = var.environment
+  suffix  = "-01"
   region = var.aws_region
   vpc_id = module.vpc.vpc_id
   subnet = module.vpc.private_subnet_id[*]

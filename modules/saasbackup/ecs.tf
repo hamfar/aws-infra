@@ -1,5 +1,5 @@
 resource "aws_ecs_cluster" "saasbackups_ecs_cluster" {
-  name = "saasbackup-cluster-${var.environment}"
+  name = "saasbackup-cluster${var.suffix}"
     
   tags = {
     Environment = var.environment
@@ -8,7 +8,7 @@ resource "aws_ecs_cluster" "saasbackups_ecs_cluster" {
 }
 
 resource "aws_ecs_task_definition" "saasbackups_ecs_task_definition" {
-  family                   = "saasbackups"
+  family                   = "saasbackups${var.suffix}"
   execution_role_arn       = aws_iam_role.saasbackups_ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.saasbackups_ecs_task_execution_role.arn
   network_mode             = "awsvpc"
@@ -49,7 +49,7 @@ resource "aws_ecs_task_definition" "saasbackups_ecs_task_definition" {
         "options": {
           "awslogs-region": "${var.aws_region}",
           "awslogs-stream-prefix": "${var.environment}",
-          "awslogs-group": "awslogs-saasbackups-${var.environment}"
+          "awslogs-group": "awslogs-saasbackups${var.suffix}"
         }
       },
       "portMappings": [],
