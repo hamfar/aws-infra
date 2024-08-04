@@ -1,6 +1,6 @@
-# Terraform Module: AWS SaaSbackups infrastructure
+# Terraform Module: AWS ECS scheduled task infrastructure
 
-This Terraform module sets up an AWS ECS cluster, creates a task definition, and schedules a container to perform SaaS backups. It also provisions necessary AWS resources such as S3 buckets and IAM policies to manage SaaS backups.
+This Terraform module sets up an AWS ECS cluster, creates a task definition, and schedules a container to perform run a container on schedule. It also provisions necessary AWS resources such as S3 buckets and IAM policies to manage SaaS backups.
 
 ## Usage
 
