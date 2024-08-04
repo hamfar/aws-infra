@@ -1,5 +1,9 @@
 resource "aws_ecr_repository" "saasbackups_repo" {
   name = "saasbackups/${var.environment}${var.suffix}/runner"
+  encryption_configuration {
+    encryption_type = "AES256"
+  }
+
   tags = {
     Environment = var.environment
     Application = "SaaSBackups"
