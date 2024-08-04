@@ -1,3 +1,9 @@
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - githubWorkflow
+
 jobs:
   terrascan_job:
     runs-on: ubuntu-latest
