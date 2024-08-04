@@ -2,7 +2,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - githubWorkflow
+      - main
 
 jobs:
   terrascan_job:
