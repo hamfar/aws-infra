@@ -13,7 +13,7 @@ resource "aws_iam_policy" "s3_offsite_retention" {
             "s3:GetObjectVersionTagging"
          ],
          "Resource":[
-            "aws_s3_bucket.saasbackups_s3_bucket_manual.arn/*"
+            "${aws_s3_bucket.saasbackups_s3_bucket_manual.arn}/*"
          ]
       },
       {
@@ -23,7 +23,7 @@ resource "aws_iam_policy" "s3_offsite_retention" {
             "s3:GetReplicationConfiguration"
          ],
          "Resource":[
-            aws_s3_bucket.saasbackups_s3_bucket_manual.arn
+            "${aws_s3_bucket.saasbackups_s3_bucket_manual.arn}"
          ]
       },
       {
@@ -33,11 +33,31 @@ resource "aws_iam_policy" "s3_offsite_retention" {
             "s3:ReplicateDelete",
             "s3:ReplicateTags"
          ],
-         "Resource":"aws_s3_bucket.saasbackups_s3_offsite.arn/*"
+         "Resource":"${aws_s3_bucket.saasbackups_s3_offsite.arn}/*"
       }
     ]
   })
 }
+
+resource "aws_s3_bucket_replication_configuration" "offsite_s3_replication" {
+  bucket = aws_s3_bucket.saasbackups_s3_bucket_manual.bucket
+  role = aws_iam_role.s3_offsite_retention_role.arn
+  rule {
+      id     = "replication_rule"
+      status = "Enabled"
+      filter {
+        prefix = ""
+      }
+      destination {
+        bucket        = aws_s3_bucket.saasbackups_s3_offsite.arn
+        storage_class = "DEEP_ARCHIVE"
+      }
+      delete_marker_replication {
+        status = "Enabled"
+      }
+    }
+}
+
 
 resource "aws_iam_role" "s3_offsite_retention_role" {
   name               = "s3_offsite_retention_role"
@@ -71,6 +91,7 @@ resource "aws_s3_bucket" "saasbackups_s3_offsite" {
 }
 
 resource "aws_s3_bucket_versioning" "offsite_storage_versioning" {
+    provider = aws.backup
     bucket = aws_s3_bucket.saasbackups_s3_offsite.id
     versioning_configuration {
         status = "Enabled"
