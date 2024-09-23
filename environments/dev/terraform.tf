@@ -4,6 +4,10 @@ terraform {
       source = "hashicorp/aws"
       version = ">= 4.6.0"
     }
+    onepassword = {
+      source = "1Password/onepassword"
+      version = "2.1.0"
+    }
   }
 
   required_version = ">= 1.4"
