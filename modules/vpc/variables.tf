@@ -10,6 +10,11 @@ variable "private_subnets_cidr" {
   description = "CIDR block for Private Subnet"
 }
 
+variable "default_private_subnet_index" {
+  type = number 
+  default = 0
+}
+
 variable "azs" {
  type        = list(string)
  description = "Availability Zones"

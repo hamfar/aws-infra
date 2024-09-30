@@ -15,3 +15,10 @@ resource "aws_s3_bucket" "saasbackups_s3_bucket_manual" {
     Environment = "${var.environment}"
   }
 }
+
+resource "aws_s3_bucket_versioning" "manual_storage_versioning" {
+    bucket = aws_s3_bucket.saasbackups_s3_bucket_manual.id
+    versioning_configuration {
+        status = "Enabled"
+    }
+}
