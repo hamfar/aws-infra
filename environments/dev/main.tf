@@ -6,19 +6,28 @@ module "vpc" {
 
 }
 
-module "saasbackups" {
-  source = "../../modules/saasbackup"
-  s3_bucket_auto = "ecs-saasbackups-dev"
-  s3_bucket_manual = "saasbackups-dev"
+#module "saasbackups" {
+#  source = "../../modules/saasbackup"
+#  s3_bucket_auto = "ecs-saasbackups-dev"
+#  s3_bucket_manual = "saasbackups-dev"
+#  environment = var.environment
+#  aws_region = var.aws_region
+#  vpc_id = module.vpc.vpc_id
+#  subnet = module.vpc.private_subnet_id[*]
+#  providers = {
+#    aws.main = aws.main
+#    aws.backup = aws.backup
+#  }
+#}
+
+module "aws_prowler_scan" {
+  source = "../../modules/scheduled-ecs-task"
   environment = var.environment
   aws_region = var.aws_region
   vpc_id = module.vpc.vpc_id
   subnet = module.vpc.private_subnet_id[*]
-  providers = {
-    aws.main = aws.main
-    aws.backup = aws.backup
-  }
 }
+
 
 
 
